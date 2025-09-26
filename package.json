@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node llm.js" 
+    "start": "node llm.js"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +15,10 @@
     "@langchain/openai": "^0.6.13",
     "dotenv": "^17.2.2",
     "langchain": "^0.3.34"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
