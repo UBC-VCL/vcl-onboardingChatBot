@@ -1,11 +1,12 @@
 import { ChatOpenAI } from "@langchain/openai";
 import dotenv from "dotenv";
 import { Pinecone } from '@pinecone-database/pinecone';
+import { loadPdfsFromFolder } from "./helpers/googleAPI.js";
 
 // Load environment variables
 dotenv.config();
 
-const GOOGLE_DRIVE_ID = "kk1o6EerV2RM6gRWTLBOWdWMgcUmQ_r";
+const GOOGLE_DRIVE_ID = "1-kk1o6EerV2RM6gRWTLBOWdWMgcUmQ_r";
 
 const model = new ChatOpenAI({
     modelName: "gpt-3.5-turbo",
@@ -15,3 +16,5 @@ const model = new ChatOpenAI({
 const pc = new Pinecone({
     apiKey: process.env.PINECONE_KEY!
 });
+
+loadPdfsFromFolder(GOOGLE_DRIVE_ID);

@@ -1,12 +1,12 @@
 {
   "name": "vcl-onboardingchatbot",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "type": "module",
+  "build": "tsc",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node llm.js"
+    "start": "node --loader ts-node/esm llm.ts"
+
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,6 @@
     "@types/node": "^24.5.2",
     "@types/pdf-parse": "^1.1.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   }
 }

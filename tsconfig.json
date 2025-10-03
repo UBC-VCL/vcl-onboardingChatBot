@@ -1,14 +1,11 @@
 {
-    "compilerOptions": {
-      "target": "ES2020",
-      "module": "CommonJS",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "outDir": "dist"
-    },
-    "include": ["llm.ts", "helpers/**/*.ts"],
-    "exclude": ["dist", "node_modules"] 
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+  },
+  "include": ["./**/*.ts"]
 }
-  
