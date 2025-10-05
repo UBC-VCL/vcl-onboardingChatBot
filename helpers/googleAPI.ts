@@ -1,6 +1,12 @@
 import { Document } from "langchain/document";
 import { google } from "googleapis";
 import pdf from "pdf-parse";
+import { Readable } from "stream";
+import { ConstitutionalChain } from "langchain/chains";
+
+// 1. access the drive folder to get the ID's of each file/PDF
+// 2. Use ID to get the actual PDF (1. reading PDF through memory, 2. Downloading onto your local device, 3. Alternative)
+
 
 /**
  * Authenticate with Google Drive
@@ -14,52 +20,67 @@ function getDriveClient() {
   return google.drive({ version: "v3", auth });
 }
 
-// /**
-//  * Load a single PDF from Drive as a LangChain Document[]
-//  */
-// async function loadPdfFromDrive(fileId: string) {
-//   const drive = getDriveClient();
+/**
+ * Load a single PDF from Drive as a LangChain Document[]
+ */
+  async function loadFileFromDrive(fileId: string) {
+    const drive = getDriveClient();
 
-//   // Download file as raw bytes
-//   const res = await drive.files.get(
-//     { fileId, alt: "media" },
-//     { responseType: "arraybuffer" }
-//   );
+    const res = await drive.files.get(
+      { fileId, alt: "media" },
+      { responseType: "text" }
+    );
 
-//   const buffer = Buffer.from(res.data as ArrayBuffer);
-
-//   // Extract text from PDF
-//   const data = await pdf(buffer);
-
-//   return [
-//     new Document({
-//       pageContent: data.text,
-//       metadata: {
-//         source: `drive:${fileId}`,
-//         pageCount: data.numpages,
-//       },
-//     }),
-//   ];
-// }
+    console.log(res.data)
+  
+  // return [
+  //   new Document({
+  //     pageContent: data.text,
+  //     metadata: {
+  //       source: `drive:${fileId}`,
+  //       pageCount: data.numpages,
+  //     },
+  //   }),
+  // ];
+}
 
 /**
  * Load all PDFs inside a given Google Drive folder
  */
-export async function loadPdfsFromFolder(folderId: string) {
+export async function loadFileFromFolder(folderId: string) {
   const drive = getDriveClient();
 
-  console.log(drive)
+  let files:any = []; // holds id's of the PDF's that we want to read from the Google Drive
 
-  // 1. List all PDFs
-  const res = await drive.files.list({
-    q: `'${folderId}' in parents and mimeType='application/pdf'`,
-    fields: "files(id, name)",
-  });
+  try {
+    // 1. List all PDFs
+    const res = await drive.files.list({
+      q: `'${folderId}' in parents and mimeType='text/markdown'`,
+      fields: "files(id, name)",
+    });
 
-  console.log(res.data.files)
+    // console.log(res.data.files)
+
+    if (res.status !== 200) {
+      throw new Error(`Unexpected status code: ${res.status}`);
+    }
+    files = res.data.files!
+  } catch (err) {
+    console.log(err)
+    return
+    
+  }
+
+  // iterate through each PDF and do whatever needs to be done
+  // for (let x=0; x<files.length; x++) {
+  //   await loadPdfFromDrive(files[x].id!)
+  // }
+  console.log(files[0])
+  await loadFileFromDrive(files[0].id)
+
   
 
-  // const files = res.data.files || [];
+
 
   // if (files.length === 0) {
   //   console.log("No PDFs found in folder.");
