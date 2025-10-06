@@ -30,7 +30,6 @@ async function loadFileFromDrive(file: GoogleFile): Promise<number | Error> {
   );
 
   const chunked:Document[] =  await sentenceChunker(res.data.toString(), 2, file.id, file.name);
-
   const embedded:number | Error = await embed(chunked);
   
   return 0;
