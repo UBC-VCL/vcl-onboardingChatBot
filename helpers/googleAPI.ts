@@ -16,20 +16,21 @@ function getDriveClient() {
 /**
  * Load a single PDF from Drive as a LangChain Document[]
  */
-async function loadFileFromDrive(fileId: string) {
+interface GoogleFile {
+  id:string;
+  name:string;
+}
+async function loadFileFromDrive(file: GoogleFile) {
   const drive = getDriveClient();
-
   const res = await drive.files.get(
-    { fileId, alt: "media" },
-    { responseType: "text" }
+    { fileId: file.id, alt: "media" },
+    { responseType: "text" } // for PDFs
   );
 
+  // console.log(res.data)
   // console.log(typeof res.data);
   // console.log(await chunker(res.data.toString()));
-  console.log(await sentenceChunker(res.data.toString(), 2));
-
-  
-    
+  console.log(await sentenceChunker(res.data.toString(), 2, file.id, file.name));
 }
 
 /**
@@ -64,33 +65,5 @@ export async function loadFileFromFolder(folderId: string) {
   //   await loadPdfFromDrive(files[x].id!)
   // }
   console.log(files[0])
-  await loadFileFromDrive(files[0].id)
-
-  
-
-
-
-  // if (files.length === 0) {
-  //   console.log("No PDFs found in folder.");
-  //   return [];
-  // }
-
-  // let allDocs: Document[] = [];
-
-  // // 2. Process each PDF
-  // for (const file of files) {
-  //   console.log(`Processing PDF: ${file.name} (${file.id})`);
-  //   const docs = await loadPdfFromDrive(file.id!);
-
-  //   // Attach filename in metadata too
-  //   docs.forEach(doc => {
-  //   //   doc.metadata.filename = file.name;
-  //       console.log(doc.metadata)
-  //   });
-
-  //   allDocs.push(...docs);
-  // }
-
-  // console.log(`Loaded ${allDocs.length} docs from ${files.length} PDFs.`);
-  // return allDocs;
+  await loadFileFromDrive(files[0])
 }

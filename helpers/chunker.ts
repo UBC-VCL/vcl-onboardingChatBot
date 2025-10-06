@@ -8,21 +8,21 @@ const splitter = new RecursiveCharacterTextSplitter({
 });
 
   
-export const chunker = async (document: string): Promise<Document[]> => {
+export const chunker = async (document: string, file_id:string, title:string): Promise<Document[]> => {
     let result:Document[] = await splitter.createDocuments([document]);
 
     return result;
 }
 
-export const sentenceChunker = (text: string, sentencesPerChunk:number): Document[] => {
+export const sentenceChunker = (text: string, sentencesPerChunk:number, file_id:string, title:string): Document[] => {
     const sentences = text.match(/[^.!?]+[.!?]+/g) || []; // split on ., !, ?
     const chunks: Document[] = [];
   
     for (let i = 0; i < sentences.length; i += sentencesPerChunk) {
       const chunk = sentences.slice(i, i + sentencesPerChunk).join(" ").trim();
-      const doc = new DocumnetConstructor({ pageContent: chunk })
+      const doc = new DocumnetConstructor({ pageContent: chunk, metadata:{document_id: `${file_id}`, title:`${title}`} })
       chunks.push(doc);
     }
   
     return chunks;
-  };
+};
