@@ -10,8 +10,27 @@ const splitter = new RecursiveCharacterTextSplitter({
   
 export const chunker = async (document: string, file_id:string, title:string): Promise<Document[]> => {
     let result:Document[] = await splitter.createDocuments([document]);
+    // Modify each chunk
+    const editedChunks = result.map((chunk, i) => {
+        // Example modifications
+        const cleanedText = chunk.pageContent
+        .replace(/\s+/g, " ")              // normalize spaces
+        .replace(/“|”/g, '"')              // replace fancy quotes
+        .trim();
 
-    return result;
+        return new DocumnetConstructor({
+        pageContent: cleanedText,
+        metadata: {
+            document_id: file_id,
+            title,
+            chunk_index: i,
+            // Optional: character range, timestamp, etc.
+        },
+        id: `${file_id}-${i}`, // helpful for traceability
+        });
+    });
+
+    return editedChunks;
 }
 
 export const sentenceChunker = (text: string, sentencesPerChunk:number, file_id:string, title:string): Document[] => {
@@ -20,7 +39,8 @@ export const sentenceChunker = (text: string, sentencesPerChunk:number, file_id:
   
     for (let i = 0; i < sentences.length; i += sentencesPerChunk) {
       const chunk = sentences.slice(i, i + sentencesPerChunk).join(" ").trim();
-      const doc = new DocumnetConstructor({ pageContent: chunk, metadata:{document_id: `${file_id}`, title:`${title}`} })
+      const doc = new DocumnetConstructor({ pageContent: chunk, metadata:{document_id: `${file_id}`, title:`${title}`}, id: `${file_id}-${i}`, // helpful for traceability
+    })
       chunks.push(doc);
     }
   

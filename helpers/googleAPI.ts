@@ -26,11 +26,8 @@ async function loadFileFromDrive(file: GoogleFile) {
     { fileId: file.id, alt: "media" },
     { responseType: "text" } // for PDFs
   );
-
-  // console.log(res.data)
-  // console.log(typeof res.data);
-  // console.log(await chunker(res.data.toString()));
-  console.log(await sentenceChunker(res.data.toString(), 2, file.id, file.name));
+  
+  return await sentenceChunker(res.data.toString(), 2, file.id, file.name);
 }
 
 /**
