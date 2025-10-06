@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { chunker, sentenceChunker } from "./chunker.js";
+import { embed } from "./embedder.js";
 import type { Document } from "@langchain/core/documents";
 
 /**
@@ -21,17 +22,18 @@ interface GoogleFile {
   id:string;
   name:string;
 }
-async function loadFileFromDrive(file: GoogleFile): Promise<Document[]> {
+async function loadFileFromDrive(file: GoogleFile): Promise<number | Error> {
   const drive = getDriveClient();
   const res = await drive.files.get(
     { fileId: file.id, alt: "media" },
     { responseType: "text" } 
   );
 
-  const result =  await sentenceChunker(res.data.toString(), 2, file.id, file.name);
-  console.log(result)
+  const chunked:Document[] =  await sentenceChunker(res.data.toString(), 2, file.id, file.name);
+
+  const embedded:number | Error = await embed(chunked);
   
-  return result;
+  return 0;
 }
 
 /**
@@ -65,6 +67,10 @@ export async function loadFileFromFolder(folderId: string) {
   // for (let x=0; x<files.length; x++) {
   //   await loadPdfFromDrive(files[x].id!)
   // }
-  console.log(files[0])
-  await loadFileFromDrive(files[0])
+  try {
+    const isEmbedded = await loadFileFromDrive(files[0]);
+
+  } catch (err) {
+
+  }
 }
