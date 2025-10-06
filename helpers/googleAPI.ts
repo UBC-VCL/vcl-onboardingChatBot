@@ -1,12 +1,5 @@
-import { Document } from "langchain/document";
 import { google } from "googleapis";
-import pdf from "pdf-parse";
-import { Readable } from "stream";
-import { ConstitutionalChain } from "langchain/chains";
-
-// 1. access the drive folder to get the ID's of each file/PDF
-// 2. Use ID to get the actual PDF (1. reading PDF through memory, 2. Downloading onto your local device, 3. Alternative)
-
+import { chunker, sentenceChunker } from "./chunker.js";
 
 /**
  * Authenticate with Google Drive
@@ -23,25 +16,20 @@ function getDriveClient() {
 /**
  * Load a single PDF from Drive as a LangChain Document[]
  */
-  async function loadFileFromDrive(fileId: string) {
-    const drive = getDriveClient();
+async function loadFileFromDrive(fileId: string) {
+  const drive = getDriveClient();
 
-    const res = await drive.files.get(
-      { fileId, alt: "media" },
-      { responseType: "text" }
-    );
+  const res = await drive.files.get(
+    { fileId, alt: "media" },
+    { responseType: "text" }
+  );
 
-    console.log(res.data)
+  // console.log(typeof res.data);
+  // console.log(await chunker(res.data.toString()));
+  console.log(await sentenceChunker(res.data.toString(), 2));
+
   
-  // return [
-  //   new Document({
-  //     pageContent: data.text,
-  //     metadata: {
-  //       source: `drive:${fileId}`,
-  //       pageCount: data.numpages,
-  //     },
-  //   }),
-  // ];
+    
 }
 
 /**
