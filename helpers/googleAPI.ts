@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { chunker, sentenceChunker } from "./chunker.js";
+import type { Document } from "@langchain/core/documents";
 
 /**
  * Authenticate with Google Drive
@@ -20,14 +21,17 @@ interface GoogleFile {
   id:string;
   name:string;
 }
-async function loadFileFromDrive(file: GoogleFile) {
+async function loadFileFromDrive(file: GoogleFile): Promise<Document[]> {
   const drive = getDriveClient();
   const res = await drive.files.get(
     { fileId: file.id, alt: "media" },
-    { responseType: "text" } // for PDFs
+    { responseType: "text" } 
   );
+
+  const result =  await sentenceChunker(res.data.toString(), 2, file.id, file.name);
+  console.log(result)
   
-  return await sentenceChunker(res.data.toString(), 2, file.id, file.name);
+  return result;
 }
 
 /**
