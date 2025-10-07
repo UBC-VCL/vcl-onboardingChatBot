@@ -2,6 +2,7 @@ import { google } from "googleapis";
 import { chunker, sentenceChunker } from "./chunker.js";
 import { embed } from "./embedder.js";
 import type { Document } from "@langchain/core/documents";
+import {EmbeddedOBJ} from "../types/PineconeTypes.js";
 
 /**
  * Authenticate with Google Drive
@@ -30,10 +31,10 @@ async function loadFileFromDrive(file: GoogleFile): Promise<number | Error> {
   );
 
   const chunked:Document[] =  await sentenceChunker(res.data.toString(), 2, file.id, file.name);
-  const embedded:Document[] | Error = await embed(chunked, 10, 2000);
+  console.log(chunked.length)
+  const embedded:EmbeddedOBJ[] | Error = await embed(chunked, 10, 2000);
+  console.log(embedded);
 
-  console.log(embedded)
-  
   return 0;
 }
 

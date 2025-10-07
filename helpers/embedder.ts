@@ -1,16 +1,16 @@
 import dotenv from "dotenv";
 import type { Document } from "@langchain/core/documents";
 import OpenAI from "openai";
+import { EmbeddedOBJ } from "../types/PineconeTypes.js";
 
 dotenv.config();
 
 const OPEN_AI_API_KEY = process.env.OPEN_AI_KEY;
-console.log(OPEN_AI_API_KEY)
 const OPEN_AI = new OpenAI({ apiKey: OPEN_AI_API_KEY });
-console.log(OPEN_AI)
 
-export const embed = async (chunks:Document[], batchSize:number, retryDelayMs:number):Promise<Document[] | Error> => {
-    let result:Document[] = [];
+export const embed = async (chunks:Document[], batchSize:number, retryDelayMs:number):Promise<EmbeddedOBJ[] | Error> => {
+    let result:EmbeddedOBJ[] = [];
+    console.log(chunks.length)
 
     for (let i = 0; i<chunks.length; i+=batchSize) {
         const batch = chunks.slice(i, i + batchSize);
@@ -22,16 +22,16 @@ export const embed = async (chunks:Document[], batchSize:number, retryDelayMs:nu
                 model: "text-embedding-3-small",
                 input: texts,
             });
-            const batchEmbeddings = response.data.map((d) => d.embedding);
-
-            console.log(batchEmbeddings);
+            const batchEmbeddings:number[][] = response.data.map((d) => d.embedding);
 
             for (let j = 0; j < batch.length; j++) {
                 result.push({
-                ...batch[j],
+                id: batch[j].id!,
+                values: batchEmbeddings[j],
                 metadata: {
-                  ...batch[j].metadata,
-                  embedding: batchEmbeddings[j],
+                  docId: batch[j].metadata.document_id,
+                  title:batch[j].metadata.title,
+                  pageContent: batch[j].pageContent,
                 },
               });
             }
@@ -41,7 +41,7 @@ export const embed = async (chunks:Document[], batchSize:number, retryDelayMs:nu
                   `Rate limited. Retrying batch ${i / batchSize + 1} after ${retryDelayMs / 1000}s...`
                 );
                 await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
-                i -= batchSize; // re-run same batch
+                i -= batchSize; 
                 continue;
               }
         
