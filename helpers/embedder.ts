@@ -8,7 +8,7 @@ dotenv.config();
 const OPEN_AI_API_KEY = process.env.OPEN_AI_KEY;
 const OPEN_AI = new OpenAI({ apiKey: OPEN_AI_API_KEY });
 
-export const embed = async (chunks:Document[], batchSize:number, retryDelayMs:number):Promise<EmbeddedOBJ[] | Error> => {
+export const embed = async (chunks:Document[], batchSize:number, retryDelayMs:number):Promise<EmbeddedOBJ[]> => {
     let result:EmbeddedOBJ[] = [];
     console.log(chunks.length)
 

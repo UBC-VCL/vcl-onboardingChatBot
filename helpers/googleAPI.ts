@@ -3,6 +3,7 @@ import { chunker, sentenceChunker } from "./chunker.js";
 import { embed } from "./embedder.js";
 import type { Document } from "@langchain/core/documents";
 import {EmbeddedOBJ} from "../types/PineconeTypes.js";
+import { upsertDocument } from "./pineconeServices.js";
 
 /**
  * Authenticate with Google Drive
@@ -23,7 +24,7 @@ interface GoogleFile {
   id:string;
   name:string;
 }
-async function loadFileFromDrive(file: GoogleFile): Promise<number | Error> {
+async function loadFileFromDrive(file: GoogleFile): Promise<void> {
   const drive = getDriveClient();
   const res = await drive.files.get(
     { fileId: file.id, alt: "media" },
@@ -31,11 +32,15 @@ async function loadFileFromDrive(file: GoogleFile): Promise<number | Error> {
   );
 
   const chunked:Document[] =  await sentenceChunker(res.data.toString(), 2, file.id, file.name);
-  console.log(chunked.length)
-  const embedded:EmbeddedOBJ[] | Error = await embed(chunked, 10, 2000);
-  console.log(embedded);
-
-  return 0;
+  const embedded = await embed(chunked, 10, 2000)
+    .then(async (res:EmbeddedOBJ[]) => {
+      console.log(res)
+      await upsertDocument(res);
+    })
+    .catch((err) => {
+      console.log(err)
+      throw err;
+  });
 }
 
 /**
