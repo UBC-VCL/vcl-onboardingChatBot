@@ -13,10 +13,8 @@ const PINCECONE_INDEX = pc.index("vcl-vector-db");
 
 
 export const upsertDocument= async (items:EmbeddedOBJ[]):Promise<void> => {
-    console.log(items as any)
     await PINCECONE_INDEX.upsert(items as any)
         .catch(err => {
             throw err
         });
-
 }
