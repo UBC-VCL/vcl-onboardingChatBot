@@ -1,9 +1,9 @@
 import { google } from "googleapis";
-import { chunker, sentenceChunker } from "./chunker.js";
-import { embed } from "./embedder.js";
+import { sentenceChunker } from "./chunker.js";
+import { embed, langchainEmbedder } from "./embedder.js";
 import type { Document } from "@langchain/core/documents";
-import {EmbeddedOBJ} from "../types/PineconeTypes.js";
-import { upsertDocument } from "./pineconeServices.js";
+import { EmbeddedOBJ } from "../types/PineconeTypes.js";
+import { upsertDocument } from "../services/pineconeServices.js";
 
 /**
  * Authenticate with Google Drive
@@ -32,15 +32,16 @@ async function loadFileFromDrive(file: GoogleFile): Promise<void> {
   );
 
   const chunked:Document[] =  await sentenceChunker(res.data.toString(), 2, file.id, file.name);
-  const embedded = await embed(chunked, 10, 2000)
+  await langchainEmbedder(chunked, 10, 2000)
+    .catch((err) => {
+      console.log(err)
+      throw err;
+    })
     .then(async (res:EmbeddedOBJ[]) => {
       console.log(res)
       await upsertDocument(res);
     })
-    .catch((err) => {
-      console.log(err)
-      throw err;
-  });
+    
 }
 
 /**
